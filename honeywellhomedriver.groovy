@@ -32,9 +32,9 @@ metadata {
             capability "Refresh"
 
         //Maybe?
-		capability "Sensor"
-		attribute "thermostatFanState", "enum", ["true", "false"]
-		attribute "emergencyHeatActive", "enum", [null, "true", "false"]
+        capability "Sensor"
+        attribute "thermostatFanState", "enum", ["true", "false"]
+        attribute "emergencyHeatActive", "enum", [null, "true", "false"]
         attribute "autoChangeoverActive", "enum", ["unsupported", "true", "false"]
         attribute "allowedModes", "enum", ["EmergencyHeat", "Heat", "Off", "Cool","Auto"]
         attribute "units", "enum", ["F", "C"]
@@ -45,14 +45,14 @@ metadata {
                 title: "Allow Heat Mode, if false heat mode will be iqnored",
                 defaultValue:true)
         input ("coolModeEnabled", "bool", 
-                title: "Allow Cool Mode, if false heat mode will be iqnored",
+                title: "Allow Cool Mode, if false cool mode will be iqnored",
                 defaultValue:true)
         input ("debugLogs", "bool", 
-			   title: "Enable debug logging", 
-			   defaultValue: false)
-		input ("descriptionText", "bool", 
-			   title: "Enable description text logging", 
-			   defaultValue: true)
+               title: "Enable debug logging", 
+               defaultValue: false)
+        input ("descriptionText", "bool", 
+               title: "Enable description text logging", 
+               defaultValue: true)
     }
 }
 

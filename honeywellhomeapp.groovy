@@ -651,7 +651,7 @@ def refreshHelper(jsonString, cloudString, deviceString, com.hubitat.app.DeviceW
                 if (settings?.debugOutput) LogDebug("Caught supportedModes... converted value = ${newValue}")
             }
           
-            sendEvent(device, [name: deviceString, value: newValue])
+            sendEvent(device, [name: deviceString, value: newValue, isStateChange: optionalIsStateChange])
         }
     }
     catch (java.lang.NullPointerException e)
@@ -728,11 +728,11 @@ def refreshThermosat(com.hubitat.app.DeviceWrapper device, retry=false)
 
     refreshHelper(reJson, "indoorTemperature", "temperature", device, tempUnits, false, false, true)
     refreshHelper(reJson, "allowedModes", "supportedThermostatModes", device, null, true, false)
-    refreshHelper(reJson, "indoorHumidity", "humidity", device, null, false, false)
+    refreshHelper(reJson, "indoorHumidity", "humidity", device, null, false, false, true)
     refreshHelper(reJson, "allowedModes", "allowedModes", device, null, false, false)
-    refreshHelper(reJson.changeableValues, "heatSetpoint", "heatingSetpoint", device, tempUnits, false, false, false)
-    refreshHelper(reJson.changeableValues, "coolSetpoint", "coolingSetpoint", device, tempUnits, false, false, false)
-    refreshHelper(reJson.changeableValues, "mode", "thermostatMode", device, null, false, true)
+    refreshHelper(reJson.changeableValues, "heatSetpoint", "heatingSetpoint", device, tempUnits, false, false, true)
+    refreshHelper(reJson.changeableValues, "coolSetpoint", "coolingSetpoint", device, tempUnits, false, false, true)
+    refreshHelper(reJson.changeableValues, "mode", "thermostatMode", device, null, false, true, true)
 
     if (reJson != null)
     {
@@ -958,7 +958,8 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
 
     if (mode == null)
     {
-        mode=device.currentValue('thermostatMode');
+        //Bug fix: bypass cache, read directoy from DB
+        mode=device.currentValue('thermostatMode', true);
     }
 
     //The Honeywell API expects uppercase.
