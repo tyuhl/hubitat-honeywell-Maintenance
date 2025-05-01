@@ -1131,33 +1131,57 @@ def refreshSensorTemperature(jsonString, cloudString, deviceString, com.hubitat.
     {
         LogDebug("refreshSensorTemperature() cloudString:${cloudString} - deviceString:${deviceString} - device:${device} - optionalUnits:${optionalUnits}")
 
+        // Get the temperature value (always in F from API for sensors)
         def value = jsonString.get(cloudString)
-        LogDebug("refreshSensorTemperature-${cloudString}: ${value}")
+        LogDebug("refreshSensorTemperature-${cloudString}: Raw API Value (F): ${value}")
 
         if (value == null)
         {
             LogDebug("Sensor Does not Support: ${deviceString} (${cloudString})")
             return false;
         }
-        if (optionalUnits == 'C')
+
+        // *** FIX: Compare against the correct string "°C" ***
+        if (optionalUnits == "°C")
         {
+            // Convert the Fahrenheit value received from the API to Celsius
             value = ToCelcius(value)
-            sendEvent(device, [name: deviceString, value: value])
+            LogDebug("refreshSensorTemperature-${cloudString}: Converted Value (C): ${value}")
+            // *** FIX: Send the converted value WITH the Celsius unit ***
+            sendEvent(device, [name: deviceString, value: value, unit: optionalUnits]) // Use optionalUnits which is "°C"
         }
-        else
+        else // Keep original Fahrenheit value
         {
-            sendEvent(device, [name: deviceString, value: value])
+             LogDebug("refreshSensorTemperature-${cloudString}: Using original Value (F): ${value}")
+             // *** FIX: Send the original value WITH the Fahrenheit unit ***
+            sendEvent(device, [name: deviceString, value: value, unit: optionalUnits]) // Use optionalUnits which is "°F"
         }
     }
     catch (java.lang.NullPointerException e)
     {
-        LogDebug("Sensor Does not Support: ${deviceString} (${cloudString})")
+        LogDebug("Sensor Does not Support: ${deviceString} (${cloudString}) - Exception: ${e}")
         return false;
+    }
+    catch (Exception ex) // Catch other potential errors during conversion/sending
+    {
+         LogDebug("Error in refreshSensorTemperature for ${deviceString} (${cloudString}) - Exception: ${ex}")
+         return false;
     }
 
     return true;
 }
 
+// Ensure the ToCelcius function handles non-numeric input gracefully if needed, though value should be numeric here.
 def ToCelcius(fTemp) {
-    return Math.round((fTemp - 32) * 5/9 * 10.0) / 10.0;
+    try {
+        // Ensure fTemp is treated as a number
+        def fNumeric = fTemp as BigDecimal
+        // Perform calculation and round to one decimal place
+        def cTemp = ((fNumeric - 32.0) * 5.0/9.0).setScale(1, BigDecimal.ROUND_HALF_UP)
+        return cTemp
+    } catch (Exception e) {
+        LogError("Failed to convert Fahrenheit to Celsius. Input: ${fTemp}, Error: ${e}")
+        // Return the original value or null if conversion fails
+        return fTemp
+    }
 }
