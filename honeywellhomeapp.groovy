@@ -955,6 +955,8 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
     def honeywellLocation = deviceID.substring(0, (locDelminator-1))
     def honewellDeviceID = deviceID.substring((locDelminator+2))
 
+    //Refresh thermostat to make sure all settings are up-to-date - could have changed at the thermostat itself
+    refreshThermosat(device)
 
     if (mode == null)
     {
@@ -1064,6 +1066,8 @@ def setThermosatFan(com.hubitat.app.DeviceWrapper device, fan=null, retry=false)
     def honeywellLocation = deviceID.substring(0, (locDelminator-1))
     def honewellDeviceID = deviceID.substring((locDelminator+2))
 
+    //Refresh thermostat to make sure all settings are up-to-date - could have changed at the thermostat itself
+    refreshThermosat(device)
 
     if (fan == null)
     {

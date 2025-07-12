@@ -175,8 +175,7 @@ void setCoolingSetpoint(temperature)
     //setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoChangeoverActive=false, heatPoint=null, coolPoint=null)
     if (!parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, temperature))
     {
-        LogWarn("Set cooling point failed, attempting a refresh and re-try.")
-        parent.refreshThermosat(device)
+        LogWarn("Set cooling point failed, attempting a re-try.")
         parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, temperature)
     }
     else
@@ -193,8 +192,7 @@ void setHeatingSetpoint(temperature)
     //setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoChangeoverActive=false, heatPoint=null, coolPoint=null)
     if (!parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), temperature, null))
     {
-        LogWarn("Set heating point failed, attempting a refresh and re-try.")
-        parent.refreshThermosat(device)
+        LogWarn("Set heating point failed, attempting a re-try.")
         parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), temperature, null)
     }
     else
@@ -218,8 +216,7 @@ void setThermostatFanMode(fanmode)
     {
         if(!parent.setThermosatFan(device, fanmode))
         {
-            LogWarn("Set fan mode failed, attempting a refresh and re-try.")
-            parent.refreshThermosat(device)
+            LogWarn("Set fan mode failed, attempting a re-try.")
             parent.setThermosatFan(device, fanmode);
         }
         else
@@ -253,8 +250,7 @@ void setThermostatMode(thermostatmode)
     //setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoChangeoverActive=false, heatPoint=null, coolPoint=null)
     if (!parent.setThermosatSetPoint(device, thermostatmode, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, null))
     {
-        LogWarn("Set point failed, attempting a refresh and re-try.")
-        parent.refreshThermosat(device)
+        LogWarn("Set point failed, attempting a re-try.")
         parent.setThermosatSetPoint(device, thermostatmode, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, null);
     }
     else
