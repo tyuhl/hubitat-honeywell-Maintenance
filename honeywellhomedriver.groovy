@@ -1,3 +1,4 @@
+/* groovylint-disable CatchException */
 /*
 Hubitat Driver For Honeywell Thermistate
 
@@ -14,6 +15,7 @@ Major Releases:
 11-27-2020 :  Alpha Release (0.1)
 12-15-2020 :  Beta 1 Release (0.2.0)
 
+7/18/25 FTY Expose schedule hold status
 */
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
@@ -38,6 +40,8 @@ metadata {
         attribute "autoChangeoverActive", "enum", ["unsupported", "true", "false"]
         attribute "allowedModes", "enum", ["EmergencyHeat", "Heat", "Off", "Cool","Auto"]
         attribute "units", "enum", ["F", "C"]
+        attribute "thermostatHoldState", "enum", ["NoHold", "TemporaryHold", "PermanentHold", "HoldUntil"]
+        command   "setThermostatHoldState", [[name: "Schedule Hold State", type: "ENUM", description: "ADVANCED SETTING: Thermostat schedule Hold Type to set", constraints: ["NoHold", "TemporaryHold", "PermanentHold", "HoldUntil"]]]
 
     }
     preferences{
@@ -87,6 +91,7 @@ void installed()
     coolModeEnabled = true
     debugLogs = false
     descriptionText = true
+    sendEvent(name: "thermostatHoldState", value: "PermanentHold")
     refresh()
 }
 
@@ -256,6 +261,17 @@ void setThermostatMode(thermostatmode)
     else
     {
         LogInfo("mode changed to ${thermostatmode}")
+    }
+}
+
+void setThermostatHoldState(thermostatholdstate)
+{
+    LogDebug("setThermostatHoldState() called")
+    try {
+        sendEvent(name: "thermostatHoldState", value: thermostatholdstate)
+    }
+    catch (Exception e) {
+        LogDebug("Error setting ThermostatHoldState: ${e.getLocalizedMessage()}")
     }
 }
 

@@ -14,6 +14,7 @@ Major Releases:
 11-27-2020 :  Alpha Release (0.1)
 12-15-2020 :  Beta 1 Release (0.2.0)
 4/23 lgk fix supportedThermostatModes and supportedThermostatFanModes so dashboards work again for setting these.
+7/18/25 FTY Expose schedule hold status
 
 
 Considerable inspiration an example to: https://github.com/dkilgore90/google-sdm-api/
@@ -1011,9 +1012,23 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
     // BugBug: Need to include nextPeriodTime if TemporaryHoldIs true
     if (honewellDeviceID.startsWith("LCC"))
     {
+        //Get the user setting for the hold status
+        def holdValue = "PermanentHold"
+        try {
+            holdValue = device.currentValue("thermostatHoldState")
+            if (holdValue == null)
+            {
+               // attribute hasn't been set, so default it...
+               holdValue = "PermanentHold"            
+            }
+        }
+        catch(Exception e) {
+            /* groovylint-disable-next-line LineLength */
+            LogInfo("Error getting Schedule thermostatHoldState from driver: ${e.getLocalizedMessage()} - Possible app/driver mismatch. Ignoring and moving on")
+        }
         body = [
                 mode:mode,
-                thermostatSetpointStatus:"PermanentHold", 
+                thermostatSetpointStatus: holdValue,
                 heatSetpoint:heatPoint, 
                 coolSetpoint:coolPoint]
     }
