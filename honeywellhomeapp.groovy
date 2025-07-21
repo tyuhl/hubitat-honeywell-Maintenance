@@ -734,6 +734,7 @@ def refreshThermosat(com.hubitat.app.DeviceWrapper device, retry=false)
     refreshHelper(reJson.changeableValues, "heatSetpoint", "heatingSetpoint", device, tempUnits, false, false, true)
     refreshHelper(reJson.changeableValues, "coolSetpoint", "coolingSetpoint", device, tempUnits, false, false, true)
     refreshHelper(reJson.changeableValues, "mode", "thermostatMode", device, null, false, true, true)
+    refreshHelper(reJson.changeableValues, "thermostatSetpointStatus", "thermostatHoldState", device, null, false, false, true)
 
     if (reJson != null)
     {
