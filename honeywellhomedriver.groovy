@@ -16,9 +16,18 @@ Major Releases:
 12-15-2020 :  Beta 1 Release (0.2.0)
 
 7/18/25 FTY Expose schedule hold status
+1/31/26 FTY Add versioning in prep for Package Manager (v1.0.5)
 */
+
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
+
+String appVersion()   { return "1.0.5" }
+def setVersion() {
+	atomicState.name = "Honeywell Home Thermostat Driver"
+	atomicState.version = appVersion()
+}
+
 
 metadata {
     definition (
@@ -87,6 +96,7 @@ void disableDebugLog()
 void installed()
 {
     LogInfo("Installing.");
+    setVersion()
     heatModeEnabled = true
     coolModeEnabled = true
     debugLogs = false
@@ -103,6 +113,7 @@ void uninstalled()
 void updated() 
 {
     LogInfo("Updating.");
+    setVersion()
     refresh()
 }
 

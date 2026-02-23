@@ -18,10 +18,17 @@
  *
  *  History:
  *
- *
+ * 1/31/26 FTY Add versioning in prep for Package Manager (v1.0.5)
+*
  */
 
 import groovy.transform.Field
+
+String appVersion()   { return "1.0.5" }
+def setVersion() {
+	atomicState.name = "Honeywell Home Remote Sensor Driver"
+	atomicState.version = appVersion()
+}
 
 metadata {
 	definition (
@@ -61,6 +68,7 @@ void configure() {
 void installed()
 {
 	log("installed called", "trace")
+	setVersion()
 }
 
 void uninstalled()
@@ -71,6 +79,7 @@ void uninstalled()
 void updated()
 {
 	log("updated called", "trace")
+	setVersion()
 }
 
 void parse(String message)
