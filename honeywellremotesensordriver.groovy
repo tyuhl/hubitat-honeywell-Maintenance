@@ -19,12 +19,12 @@
  *  History:
  *
  * 1/31/26 FTY Add versioning in prep for Package Manager (v1.0.5)
-*
+ * 5/19/26 FTY Update base API URL
  */
 
 import groovy.transform.Field
 
-String appVersion()   { return "1.0.5" }
+String appVersion()   { return "1.0.6" }
 def setVersion() {
 	atomicState.name = "Honeywell Home Remote Sensor Driver"
 	atomicState.version = appVersion()

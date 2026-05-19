@@ -16,7 +16,7 @@ Major Releases:
 4/23 lgk fix supportedThermostatModes and supportedThermostatFanModes so dashboards work again for setting these.
 7/18/25 FTY Expose schedule hold status
 1/31/26 FTY Add versioning in prep for Package Manager (v1.0.5)
-*
+5/19/26 FTY Update base API URL
 
 Considerable inspiration an example to: https://github.com/dkilgore90/google-sdm-api/
 */
@@ -27,13 +27,13 @@ import groovy.json.JsonOutput
 import groovy.transform.Field
 
 
-String appVersion()   { return "1.0.5" }
+String appVersion()   { return "1.0.6" }
 def setVersion() {
 	atomicState.name = "Honeywell Home Thermostat Application"
 	atomicState.version = appVersion()
 }
 
-@Field static String global_apiURL = "https://api.honeywell.com"
+@Field static String global_apiURL = "https://api.honeywellhome.com"
 @Field static String global_redirectURL = "https://cloud.hubitat.com/oauth/stateredirect"
 
 definition(
