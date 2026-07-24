@@ -17,6 +17,7 @@ Major Releases:
 7/18/25 FTY Expose schedule hold status
 1/31/26 FTY Add versioning in prep for Package Manager (v1.0.5)
 5/19/26 FTY Update base API URL
+7/23/26 FTY Improve logging for token expiration. Don't log an error unless the retry fails
 
 Considerable inspiration an example to: https://github.com/dkilgore90/google-sdm-api/
 */
@@ -27,7 +28,7 @@ import groovy.json.JsonOutput
 import groovy.transform.Field
 
 
-String appVersion()   { return "1.0.6" }
+String appVersion()   { return "1.0.7" }
 def setVersion() {
 	atomicState.name = "Honeywell Home Thermostat Application"
 	atomicState.version = appVersion()
@@ -716,10 +717,6 @@ def refreshThermosat(com.hubitat.app.DeviceWrapper device, retry=false)
          {
             LogError("Thermosat API failed 2nd time -- ${e.getLocalizedMessage()}: ${e.response.data}")
          }
-         else 
-         {
-            LogInfo("Thermosat API failed retrying... -- ${e.getLocalizedMessage()}: ${e.response.data}")
-         }
        
         return;
     }
@@ -837,8 +834,9 @@ String getRemoteSensorUserDefName(String parentDeviceId, String locationId, Stri
             refreshToken()
             getRemoteSensorUserDefName(parentDeviceId, locationId, groupId, roomID, true)
         }
-
-        LogError("Remote Sensor API failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        if (retry) {
+            LogError("Remote Sensor API failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        }
         return ""
     }
 
@@ -921,7 +919,10 @@ def refreshRemoteSensor(com.hubitat.app.DeviceWrapper device, retry=false)
             refreshRemoteSensor(device, true)
         }
 
-        LogError("Remote Sensor API failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        // Only an error if it fails again after retry
+        if (retry) {
+            LogError("Remote Sensor API failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        }
         return;
     }
 
@@ -1075,7 +1076,9 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
             refreshToken()
             setThermosatSetPoint(device, mode, autoChangeoverActive, emergencyHeatActive,  heatPoint, coolPoint, true)
         }
-        LogError("Set Api Call failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        if (retry) {
+            LogError("Set Api Call failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        }
         return false;
     }
 
@@ -1143,7 +1146,9 @@ def setThermosatFan(com.hubitat.app.DeviceWrapper device, fan=null, retry=false)
             refreshToken()
             setThermosatFan(device, fan, true)
         }
-        LogError("Set Fan Call failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        if (retry) {
+            LogError("Set Fan Call failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        }
         return false;
     }
 
