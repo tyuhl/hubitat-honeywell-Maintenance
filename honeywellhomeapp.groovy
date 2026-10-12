@@ -18,6 +18,7 @@ Major Releases:
 1/31/26 FTY Add versioning in prep for Package Manager (v1.0.5)
 5/19/26 FTY Update base API URL
 7/23/26 FTY Improve logging for token expiration. Don't log an error unless the retry fails
+10/11/26 FTY Improve error logging
 
 Considerable inspiration an example to: https://github.com/dkilgore90/google-sdm-api/
 */
@@ -28,10 +29,10 @@ import groovy.json.JsonOutput
 import groovy.transform.Field
 
 
-String appVersion()   { return "1.0.7" }
+String appVersion()   { return "1.0.8" }
 def setVersion() {
-	atomicState.name = "Honeywell Home Thermostat Application"
-	atomicState.version = appVersion()
+    atomicState.name = "Honeywell Home Thermostat Application"
+    atomicState.version = appVersion()
 }
 
 @Field static String global_apiURL = "https://api.honeywellhome.com"
@@ -706,18 +707,21 @@ def refreshThermosat(com.hubitat.app.DeviceWrapper device, retry=false)
     }
     catch (groovyx.net.http.HttpResponseException e) 
     {
-        if (e.getStatusCode() == 401 && !retry)
-        {
-            LogWarn('Authorization token expired, will refresh and retry.')
-            refreshToken()
-            refreshThermosat(device, true)
+        // expired token
+        if (e.getStatusCode() == 401) {
+            if (!retry) {
+                LogWarn('Authorization token expired, will refresh and retry.')
+                refreshToken()
+                refreshThermosat(device, true)
+            }
+            else {
+                LogError("Thermosat API failed 2nd time -- ${e.getLocalizedMessage()}: ${e.response.data}")
+            }
         }
-         // lgk add code to only print error on retry failure
-         if (retry) 
-         {
-            LogError("Thermosat API failed 2nd time -- ${e.getLocalizedMessage()}: ${e.response.data}")
-         }
-       
+        else {
+            LogError("Thermosat API failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
+        }
+     
         return;
     }
 
@@ -828,13 +832,19 @@ String getRemoteSensorUserDefName(String parentDeviceId, String locationId, Stri
     }
     catch (groovyx.net.http.HttpResponseException e)
     {
-        if (e.getStatusCode() == 401 && !retry)
+        //expired token
+        if (e.getStatusCode() == 401)
         {
-            LogWarn('Authorization token expired, will refresh and retry.')
-            refreshToken()
-            getRemoteSensorUserDefName(parentDeviceId, locationId, groupId, roomID, true)
+            if (!retry) {
+                LogWarn('Authorization token expired, will refresh and retry.')
+                refreshToken()
+                getRemoteSensorUserDefName(parentDeviceId, locationId, groupId, roomID, true)
+            }
+            else {
+                LogError("Remote Sensor API failed 2nd time-- ${e.getLocalizedMessage()}: ${e.response.data}")
+            }
         }
-        if (retry) {
+        else {
             LogError("Remote Sensor API failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
         }
         return ""
@@ -912,15 +922,18 @@ def refreshRemoteSensor(com.hubitat.app.DeviceWrapper device, retry=false)
     }
     catch (groovyx.net.http.HttpResponseException e)
     {
-        if (e.getStatusCode() == 401 && !retry)
+        if (e.getStatusCode() == 401)
         {
-            LogWarn('Authorization token expired, will refresh and retry.')
-            refreshToken()
-            refreshRemoteSensor(device, true)
+            if (!retry) {
+                LogWarn('Authorization token expired, will refresh and retry.')
+                refreshToken()
+                refreshRemoteSensor(device, true)
+            }
+            else {
+                LogError("Remote Sensor API failed 2nd time -- ${e.getLocalizedMessage()}: ${e.response.data}")
+            }
         }
-
-        // Only an error if it fails again after retry
-        if (retry) {
+        else {
             LogError("Remote Sensor API failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
         }
         return;
@@ -1001,12 +1014,12 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
 
     if (heatPoint == null)
     {
-        heatPoint=device.currentValue('heatingSetpoint');
+        heatPoint=device.currentValue('heatingSetpoint', true);
     }
 
     if (coolPoint == null)
     {
-        coolPoint=device.currentValue('coolingSetpoint');
+        coolPoint=device.currentValue('coolingSetpoint', true);
     }
 
     LogDebug("Attempting to Set DeviceID: ${honewellDeviceID}, With LocationID: ${honeywellLocation}");
@@ -1070,13 +1083,18 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
     }
     catch (groovyx.net.http.HttpResponseException e) 
     {
-        if (e.getStatusCode() == 401 && !retry)
+        if (e.getStatusCode() == 401)
         {
-            LogWarn('Authorization token expired, will refresh and retry.')
-            refreshToken()
-            setThermosatSetPoint(device, mode, autoChangeoverActive, emergencyHeatActive,  heatPoint, coolPoint, true)
+            if (!retry) {
+                LogWarn('Authorization token expired, will refresh and retry.')
+                refreshToken()
+                setThermosatSetPoint(device, mode, autoChangeoverActive, emergencyHeatActive,  heatPoint, coolPoint, true)
+            }
+            else {
+                LogError("Set Api Call failed 2nd time -- ${e.getLocalizedMessage()}: ${e.response.data}")
+            }
         }
-        if (retry) {
+        else {
             LogError("Set Api Call failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
         }
         return false;
@@ -1140,13 +1158,19 @@ def setThermosatFan(com.hubitat.app.DeviceWrapper device, fan=null, retry=false)
     }
     catch (groovyx.net.http.HttpResponseException e) 
     {
-        if (e.getStatusCode() == 401 && !retry)
+        if (e.getStatusCode() == 401)
         {
-            LogWarn('Authorization token expired, will refresh and retry.')
-            refreshToken()
-            setThermosatFan(device, fan, true)
+            if (!retry)
+            {
+                LogWarn('Authorization token expired, will refresh and retry.')
+                refreshToken()
+                setThermosatFan(device, fan, true)
+            }
+            else {
+                LogError("Set Fan Call failed 2nd time -- ${e.getLocalizedMessage()}: ${e.response.data}")
+            }
         }
-        if (retry) {
+        else {
             LogError("Set Fan Call failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
         }
         return false;
