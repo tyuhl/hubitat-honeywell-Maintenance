@@ -24,7 +24,7 @@ Major Releases:
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
-String appVersion()   { return "1.0.7" }
+String appVersion()   { return "1.0.8" }
 def setVersion() {
 	atomicState.name = "Honeywell Home Thermostat Driver"
 	atomicState.version = appVersion()

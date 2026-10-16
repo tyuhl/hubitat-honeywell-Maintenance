@@ -24,7 +24,7 @@
 
 import groovy.transform.Field
 
-String appVersion()   { return "1.0.7" }
+String appVersion()   { return "1.0.8" }
 def setVersion() {
 	atomicState.name = "Honeywell Home Remote Sensor Driver"
 	atomicState.version = appVersion()
